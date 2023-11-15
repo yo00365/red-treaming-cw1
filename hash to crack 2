@@ -1,0 +1,125 @@
+import sys
+
+import random
+
+import hashlib
+
+import time
+
+
+
+# Load words from the dictionary file
+
+with open("dictionary", "r") as dictionary_file:
+
+    word_list = [line.strip() for line in dictionary_file]
+
+
+
+# Target hash to match
+
+target_hash = input("Enter the target hash: ")
+
+
+
+# Set the number of modifications
+
+num_modifications = 50000
+
+
+
+# Function to generate modified passwords
+
+def generate_modified_password(original_word):
+
+    passwd = original_word
+
+
+
+    # Modify passwd by adding a number
+
+    number = str(random.randint(0, 9))
+
+    location = random.randint(0, len(passwd))
+
+    passwd = passwd[:location] + number + passwd[location:]
+
+
+
+    # Modify passwd by adding a symbol
+
+    symbolset = ['&', '=', '!', '?', '.', '~', '*', '^', '#', '$']
+
+    symbol = random.choice(symbolset)
+
+    location = random.randint(0, len(passwd))
+
+    passwd = passwd[:location] + symbol + passwd[location:]
+
+
+
+    return passwd
+
+
+
+# Variable to store the start time
+
+start_time = time.time()
+
+
+
+# Variable to store the number of trials
+
+total_trials = 0
+
+
+
+# Try each modification for each word
+
+for original_word in word_list:
+
+    for _ in range(num_modifications):
+
+        passwd = generate_modified_password(original_word)
+
+
+
+        # Hash the modified password using sha256
+
+        m = hashlib.sha256()
+
+        m.update(bytes(passwd, 'utf-8'))
+
+        hash_value = m.hexdigest()
+
+
+
+        total_trials += 1
+
+
+
+        if hash_value == target_hash:
+
+            end_time = time.time()
+
+            time_taken = end_time - start_time
+
+            print("Match found!")
+
+            print("Original Word:", original_word)
+
+            print("Modified Password:", passwd)
+
+            print(f"Time taken: {time_taken} seconds")
+
+            print(f"Number of trials for this password: {total_trials}")
+
+            print(f"Total number of trials for the whole file: {len(word_list) * num_modifications}")
+
+            sys.exit()
+
+
+
+# If no match is found
+
+print("No match found.")
